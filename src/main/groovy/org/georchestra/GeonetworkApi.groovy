@@ -32,9 +32,9 @@ class GeonetworkApi {
   </site>
   <filters/>
   <options>
-    <oneRunOnly>true</oneRunOnly>
+    <oneRunOnly>false</oneRunOnly>
     <overrideUuid>SKIP</overrideUuid>
-    <every>0 0 0 ? * *</every>
+    <every>0 0 12 ${Math.abs(new Random().nextInt() % 28) + 1} * ?</every>
     <status>active</status>
   </options>
   <content>
@@ -72,7 +72,7 @@ class GeonetworkApi {
         post.setRequestProperty("Authorization", "Basic dGVzdGFkbWluOnRlc3RhZG1pbg==")
         post.setRequestProperty("X-XSRF-TOKEN", "da2f1db8-7f79-4e5a-9da3-2ee47d8dc0b3")
         post.setRequestProperty("Cookie", "XSRF-TOKEN=da2f1db8-7f79-4e5a-9da3-2ee47d8dc0b3")
-        post.getOutputStream().write(payload.getBytes("UTF-8"));
+        post.getOutputStream().write(payload.getBytes("UTF-8"))
         def rc = post.getResponseCode()
         return rc
     }
@@ -103,10 +103,10 @@ class GeonetworkApi {
             def c = url.toURL().openConnection()
             c.connect()
             if (c.responseCode != 200) {
-                throw new Exception("HTTP code != 200 on ${url}")
+                throw new Exception("HTTP code ${c.responseCode}")
             }
         } catch (Exception _) {
-            logger.error _.getMessage()
+            logger.error "{} on {} ", _.getMessage(), url
             return false
         }
         logger.info "Geonetwork found at: {}", url
