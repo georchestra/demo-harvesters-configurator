@@ -32,6 +32,8 @@ class BootstrapData {
     public static void main(String[] args) {
         def gnApi = new GeonetworkApi()
 
+        def launchHarvesters = true
+
         def instances = instanceFromWebsiteSources().findAll {
             gnApi.isGeonetworkAccessible(it)
         }
@@ -59,15 +61,20 @@ class BootstrapData {
         }
 
         // launches the created harvesters (requires to refresh the list from GeoNetwork)
-        harvesters = gnApi.getHarvesters()
 
-        harvestersCreated.each { h -> {
-                def hId = harvesters.find { it.site.name == h }?.'@id'
-                logger.info "Launching newly created harvester '{}' ...", h
-                gnApi.doHarvest(hId)
+        if (launchHarvesters) {
+            harvesters = gnApi.getHarvesters()
+
+            harvestersCreated.each { h ->
+                {
+                    def hId = harvesters.find { it.site.name == h }?.'@id'
+                    logger.info "Launching newly created harvester '{}' ...", h
+                    gnApi.doHarvest(hId)
+                }
             }
+        } else {
+            logger.info "Launching the registered harvesters is disabled."
         }
-
         System.exit(0)
     }
 }
