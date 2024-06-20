@@ -3,6 +3,8 @@ package org.georchestra
 import groovy.json.JsonSlurper
 import groovy.xml.XmlSlurper
 import groovy.xml.XmlUtil
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class GeonetworkApi {
     private static def payload = """<node id="" type="csw">
@@ -55,6 +57,8 @@ class GeonetworkApi {
     private static def geonetworkHarvesterListUrl = "https://demo.georchestra.org/geonetwork/srv/eng/admin.harvester.list?_content_type=json"
     private static def geonetworkHarvesterRunUrl  = "https://demo.georchestra.org/geonetwork/srv/eng/admin.harvester.run?_content_type=json&id="
 
+    private static final Logger logger = LoggerFactory.getLogger(GeonetworkApi.class)
+
     static def createHarvester(def name, def url) {
         def payload = new XmlSlurper().parseText(payload)
         payload.site.name = name
@@ -102,10 +106,10 @@ class GeonetworkApi {
                 throw new Exception("HTTP code != 200 on ${url}")
             }
         } catch (Exception _) {
-            println _.getMessage()
+            logger.error _.getMessage()
             return false
         }
-        println "Geonetwork found at: ${url}"
+        logger.info "Geonetwork found at: {}", url
         item.csw_url = url.toString()
         true
     }

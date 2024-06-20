@@ -1,11 +1,16 @@
 package org.georchestra
 
 import org.jsoup.Jsoup
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class BootstrapData {
 
     private static def websiteSourceUrl = "https://raw.githubusercontent.com/georchestra/georchestra.github.io/master/community.md"
     private static def instancesUrl = "https://demo.georchestra.org/geoserver/ows?service=wfs&request=GetFeature&outputFormat=application/json&typeName=georchestra_instances"
+
+    private static final Logger logger = LoggerFactory.getLogger(BootstrapData.class)
+
 
     static def instanceFromWebsiteSources() {
         def content = new URL(websiteSourceUrl).readLines()
@@ -42,7 +47,7 @@ class BootstrapData {
                 gnApi.createHarvester(it.name, it.csw_url)
                 harvestersCreated << it.name
             } else {
-                println "Harvester endpoint '${it.name}' already configured"
+                logger.info "Harvester endpoint '{}' already configured", it.name
             }
         }
         // Adding craig
@@ -50,7 +55,7 @@ class BootstrapData {
             gnApi.createHarvester("CRAIG", "https://ids.craig.fr/geocat/srv/eng/csw")
             harvestersCreated << "CRAIG"
         } else {
-            println "Harvester endpoint 'CRAIG' already configured"
+            logger.info "Harvester endpoint 'CRAIG' already configured"
         }
 
         // launches the created harvesters (requires to refresh the list from GeoNetwork)
@@ -58,7 +63,7 @@ class BootstrapData {
 
         harvestersCreated.each { h -> {
                 def hId = harvesters.find { it.site.name == h }?.'@id'
-                println "Launching newly created harvester '${h}' ..."
+                logger.info "Launching newly created harvester '{}' ...", h
                 gnApi.doHarvest(hId)
             }
         }
