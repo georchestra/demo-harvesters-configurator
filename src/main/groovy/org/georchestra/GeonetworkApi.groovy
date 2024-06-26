@@ -34,7 +34,7 @@ class GeonetworkApi {
   <options>
     <oneRunOnly>false</oneRunOnly>
     <overrideUuid>SKIP</overrideUuid>
-    <every>0 0 12 ${Math.abs(new Random().nextInt() % 28) + 1} * ?</every>
+    <every></every>
     <status>active</status>
   </options>
   <content>
@@ -63,7 +63,9 @@ class GeonetworkApi {
         def payload = new XmlSlurper().parseText(payload)
         payload.site.name = name
         payload.site.capabilitiesUrl = url
+        payload.options.every = "0 0 12 ${Math.abs(new Random().nextInt() % 28) + 1} * ?"
         payload = XmlUtil.asString(payload)
+
         def post = new URL(geonetworkHarvesterApiUrl).openConnection()
         post.setRequestMethod("POST")
         post.setDoOutput(true)
